@@ -1,15 +1,20 @@
-FROM gcr.io/google-appengine/python
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
 
-# Ref:
-# * https://github.com/GoogleCloudPlatform/python-runtime/blob/8cdc91a88cd67501ee5190c934c786a7e91e13f1/README.md#kubernetes-engine--other-docker-hosts
-# * https://github.com/GoogleCloudPlatform/python-runtime/blob/8cdc91a88cd67501ee5190c934c786a7e91e13f1/scripts/testdata/hello_world_golden/Dockerfile
-RUN virtualenv /env -p python3.7
+# Set the working directory in the container
+WORKDIR /app
 
-ENV VIRTUAL_ENV /env
-ENV PATH /env/bin:$PATH
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-ADD requirements.txt /app/
-RUN pip install -r requirements.txt
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-ADD . /app
-ENTRYPOINT [ "streamlit", "run", "mnist_app.py", "--server.port", "8080" ]
+# Expose the port that Streamlit runs on
+EXPOSE 8501
+
+# Define environment variable
+ENV STREAMLIT_SERVER_PORT=8501
+
+# Run streamlit command
+CMD ["streamlit", "run", "mnist_app.py"]
